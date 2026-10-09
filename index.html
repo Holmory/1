@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SPR Kinetics Simulator</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<header><div class="mark">SPR</div><div><h1>Kinetics Simulator</h1><p>1:1 Langmuir · 结合与解离动力学模拟</p></div><span class="badge">LOCAL SIMULATION</span></header>
+<main>
+<aside class="panel"><h2>实验参数</h2><form id="parameters" novalidate>
+<label>实验模式<select id="mode"><option value="multi">Multi-cycle kinetics</option><option value="lsa">Carterra LSA kinetics</option></select></label>
+<div class="pair"><label>ka <small>M⁻¹ s⁻¹</small><input id="ka" type="number" value="100000" min="0" step="any" required></label><label>kd <small>s⁻¹</small><input id="kd" type="number" value="0.001" min="0" step="any" required></label></div>
+<label>Rmax <small>RU</small><input id="rmax" type="number" value="100" min="0" step="any" required></label>
+<label>Analyte concentration <small>nM · 单浓度 / 探针曲线</small><input id="concentration" type="number" value="10" min="0" step="any" required></label>
+<div class="divider"></div><h3>进样设置</h3>
+<div class="pair"><label>结合时间 <small>s</small><input id="association" type="number" value="120" min="0" step="any" required></label><label>解离时间 <small>s</small><input id="dissociation" type="number" value="180" min="0" step="any" required></label></div>
+<label>最高浓度 <small>nM</small><input id="top" type="number" value="100" min="0" step="any" required></label>
+<div class="pair"><label>稀释倍数<input id="dilution" type="number" value="3" min="1" step="any" required></label><label>浓度数量<input id="count" type="number" value="5" min="1" max="12" step="1" required></label></div>
+<label class="check"><input id="series" type="checkbox" checked>使用浓度梯度（低 → 高）</label>
+<div class="actions"><button type="button" id="reset" class="secondary">恢复默认</button><button type="button" id="export">导出 CSV</button></div>
+</form><p id="error" class="error" role="alert"></p><p class="note">修改参数自动更新。浓度以 nM 输入，计算时转换为 M。关闭梯度可模拟单一 analyte concentration。</p></aside>
+<section class="results"><div class="metrics"><div class="panel metric"><span>平衡解离常数 KD</span><strong id="kd-value">—</strong><small>KD = kd / ka</small></div><div class="panel metric"><span>半衰期 t½</span><strong id="half-value">—</strong><small>ln(2) / kd</small></div><div class="panel metric"><span>浓度梯度</span><strong id="range-value">—</strong><small id="cycle-value">—</small></div></div>
+<div class="panel plot-panel"><div class="plot-heading"><div><h2>Sensorgram</h2><p id="mode-description"></p></div><span class="live">● 自动更新</span></div><div id="plot" role="img" aria-label="SPR 响应曲线"></div><div id="legend" class="legend"></div><p class="note">虚线表示结合结束。灰色虚线为输入浓度的独立参考曲线（每次从零开始）。</p></div>
+<div class="panel table-panel"><h2>进样计划</h2><div class="table-scroll"><table><thead><tr><th>周期</th><th>浓度 (nM)</th><th>起始响应 (RU)</th><th>结合末端 (RU)</th><th>解离末端 (RU)</th></tr></thead><tbody id="schedule"></tbody></table></div><p class="note">理想模型：不含传质限制、非特异性结合、噪声或仪器校正。LSA 采用无再生连续进样近似，并非 Carterra 仪器协议复现。</p></div></section>
+</main><footer>SPR Kinetics Simulator · 所有计算在本地浏览器完成</footer>
+<script src="kinetics.js"></script><script src="app.js"></script>
+</body></html>

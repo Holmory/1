@@ -112,3 +112,41 @@ def make_chart(traces, path, time_unit='original units'):
     figure.write_html(str(path), include_plotlyjs=True, full_html=True,
                        config=dict(scrollZoom=True, displaylogo=False, toImageButtonOptions=dict(format='png', filename='lsa-sensorgram', scale=2)))
     return figure
+
+
+def is_blank(reagent):
+    return bool(re.match(r'^(buffer|blank)(?:\b|\d)', reagent.strip(), re.I))
+
+
+def trim_traces(traces, cutoff=12450.0):
+    """Inclusive cutoff in original seconds; never mutate the imported dataset."""
+    if cutoff is None:
+        return list(traces)
+    if not math.isfinite(cutoff) or cutoff < 0:
+        raise ValueError('Cutoff must be a finite nonnegative time in seconds.')
+    result = []
+    for trace in traces:
+        points = [(t, r) for t, r in zip(trace.time, trace.response) if t <= cutoff]
+        if points:
+            result.append(Trace(trace.sheet, trace.sample, trace.roi, trace.cycle, trace.reagent,
+                                [p[0] for p in points], [p[1] for p in points]))
+    return result
+
+
+def signal_statistics(traces, analyte):
+    """Cycle start = first acquired point; signed drops use blank minus analyte."""
+    groups = {}
+    for trace in traces:
+        groups.setdefault((trace.sheet, trace.sample, trace.roi), []).append(trace)
+    result = []
+    for (sheet, sample, roi), entries in sorted(groups.items()):
+        entries.sort(key=lambda t: (t.time[0], t.cycle))
+        blanks = [t for t in entries if is_blank(t.reagent)]
+        blank = blanks[0] if blanks else None
+        analytes = [t for t in entries if t.reagent == analyte and (blank is None or t.time[0] >= blank.time[0])]
+        first = analytes[0] if analytes else None
+        last = analytes[-1] if analytes else None
+        result.append(dict(sheet=sheet, sample=sample, roi=roi, blank=blank, first=first, last=last,
+                           drop_first=blank.response[0] - first.response[0] if blank and first else None,
+                           drop_last=blank.response[0] - last.response[0] if blank and last else None))
+    return result

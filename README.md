@@ -62,6 +62,6 @@ node --test tests/kinetics.test.js
 
 ## LSA Excel 交互绘图桌面程序
 
-新增 Windows 11 x64 桌面程序，读取 LSA 横向 Time/Ru 行格式，自动识别样品、ROI、cycle 和进样名称。支持样品/ROI/cycle 筛选、离线浏览器交互曲线、CSV 和独立 HTML 导出。程序不上传实验数据，现有 SPR 模拟应用保留。
+新增 Windows 11 x64 桌面程序，读取 LSA 横向 Time/Ru 行格式，自动识别样品、ROI、cycle 和进样名称。支持样品/ROI/cycle 筛选、程序内嵌交互曲线及信号下降统计、CSV 和独立 HTML 导出。程序不上传实验数据，现有 SPR 模拟应用保留。
 
 运行、EXE 构建和下载说明见 [desktop/README.md](desktop/README.md)。GitHub Actions 的 `Build LSA Windows EXE` 工作流在 Windows 上打包可执行文件。

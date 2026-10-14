@@ -9,6 +9,8 @@ if errorlevel 1 goto failed
 if errorlevel 1 goto failed
 .venv\Scripts\python -m PyInstaller --noconfirm --clean --onefile --windowed --name LSA-Data-Viewer --collect-all plotly lsa_app.py
 if errorlevel 1 goto failed
+dist\LSA-Data-Viewer.exe --self-test
+if errorlevel 1 goto failed
 echo EXE created: %CD%\dist\LSA-Data-Viewer.exe
 pause
 exit /b 0

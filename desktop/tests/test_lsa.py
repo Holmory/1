@@ -61,3 +61,21 @@ class Tests(unittest.TestCase):
         self.assertTrue(all(t.showlegend for t in figure.data))
 
 if __name__=='__main__':unittest.main()
+
+class StatisticsTests(unittest.TestCase):
+    def test_cutoff_inclusive_no_mutation_and_signed_drops(self):
+        from lsa_data import Trace, trim_traces, signal_statistics
+        traces=[Trace('S','A',1,5,'Buffer 5',[0,1],[10,9]),Trace('S','A',1,11,'OSMR',[2,3],[12,13]),Trace('S','A',1,17,'OSMR',[12449,12450,12451],[3,4,-140])]
+        clipped=trim_traces(traces)
+        self.assertEqual(clipped[-1].time,[12449,12450])
+        self.assertEqual(traces[-1].time,[12449,12450,12451])
+        stats=signal_statistics(clipped,'OSMR')[0]
+        self.assertEqual(stats['drop_first'],-2)
+        self.assertEqual(stats['drop_last'],7)
+        self.assertEqual(trim_traces(traces,None),traces)
+        self.assertEqual(trim_traces(traces,0)[0].time,[0])
+    def test_missing_events_not_zero_and_rois_independent(self):
+        from lsa_data import Trace, signal_statistics
+        traces=[Trace('S','A',1,11,'OSMR',[2,3],[1,2]),Trace('S','A',2,5,'Blank',[0,1],[10,9])]
+        stats=signal_statistics(traces,'OSMR')
+        self.assertTrue(all(s['drop_first'] is None and s['drop_last'] is None for s in stats))

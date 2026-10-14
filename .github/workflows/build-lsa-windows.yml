@@ -1,0 +1,38 @@
+name: Build LSA Windows EXE
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'desktop/**'
+      - '.github/workflows/build-lsa-windows.yml'
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          architecture: x64
+      - name: Install dependencies
+        run: |
+          python -m pip install -r desktop/requirements.txt
+          python -m pip install pyinstaller==6.16.0
+      - name: Test parser and chart exports
+        run: python -m unittest discover -s desktop/tests -v
+      - name: Package executable
+        run: python -m PyInstaller --noconfirm --clean --onefile --windowed --name LSA-Data-Viewer --collect-all plotly desktop/lsa_app.py
+      - name: Verify packaged EXE
+        shell: pwsh
+        run: |
+          $process = Start-Process -FilePath "dist/LSA-Data-Viewer.exe" -ArgumentList "--self-test" -PassThru
+          if (-not $process.WaitForExit(120000)) { $process.Kill(); throw "EXE self-test timed out" }
+          if ($process.ExitCode -ne 0) { throw "EXE self-test failed: $($process.ExitCode)" }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LSA-Data-Viewer-Windows-x64
+          path: dist/LSA-Data-Viewer.exe
+          if-no-files-found: error
+          retention-days: 30

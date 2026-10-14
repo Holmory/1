@@ -59,3 +59,9 @@ node --test tests/kinetics.test.js
 - `tests/kinetics.test.js`：模型测试。
 
 本次验证：6 项模型测试通过；真实 Chromium 浏览器检查通过，覆盖首次渲染、KD 实时更新、LSA 残余响应、单浓度与零浓度、非法输入、恢复默认、CSV 内容（默认 2405 个数据点）、390px 手机布局和 JavaScript 运行错误检查。
+
+## LSA Excel 交互绘图桌面程序
+
+新增 Windows 11 x64 桌面程序，读取 LSA 横向 Time/Ru 行格式，自动识别样品、ROI、cycle 和进样名称。支持样品/ROI/cycle 筛选、离线浏览器交互曲线、CSV 和独立 HTML 导出。程序不上传实验数据，现有 SPR 模拟应用保留。
+
+运行、EXE 构建和下载说明见 [desktop/README.md](desktop/README.md)。GitHub Actions 的 `Build LSA Windows EXE` 工作流在 Windows 上打包可执行文件。

@@ -24,6 +24,12 @@ jobs:
         run: python -m unittest discover -s desktop/tests -v
       - name: Package executable
         run: python -m PyInstaller --noconfirm --clean --onefile --windowed --name LSA-Data-Viewer --collect-all plotly desktop/lsa_app.py
+      - name: Verify packaged EXE
+        shell: pwsh
+        run: |
+          $process = Start-Process -FilePath "dist/LSA-Data-Viewer.exe" -ArgumentList "--self-test" -PassThru
+          if (-not $process.WaitForExit(120000)) { $process.Kill(); throw "EXE self-test timed out" }
+          if ($process.ExitCode -ne 0) { throw "EXE self-test failed: $($process.ExitCode)" }
       - uses: actions/upload-artifact@v4
         with:
           name: LSA-Data-Viewer-Windows-x64

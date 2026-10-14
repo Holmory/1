@@ -1,5 +1,5 @@
 """Offline desktop importer; the default browser displays self-contained charts."""
-import os
+import sys
 from pathlib import Path
 import tempfile
 import threading
@@ -150,5 +150,29 @@ class App:
 
 if __name__ == '__main__':
     root = tk.Tk()
-    App(root)
-    root.mainloop()
+    app = App(root)
+    if '--self-test' in sys.argv:
+        root.withdraw()
+        try:
+            import openpyxl
+            with tempfile.TemporaryDirectory(prefix='lsa-selftest-') as directory:
+                directory = Path(directory)
+                workbook = openpyxl.Workbook()
+                workbook.active.append(['[Synthetic (1) - Buffer 5 (5)] Ru values', 1, -1])
+                workbook.active.append(['[Synthetic (1) - Buffer 5 (5)] Time values', 0, 1])
+                source = directory / 'synthetic.xlsx'
+                workbook.save(source)
+                app.loaded(str(source), load_excel(source))
+                root.update()
+                traces = app.selected()
+                assert len(traces) == 1 and traces[0].response == [1, -1]
+                make_chart(traces, directory / 'chart.html')
+                export_csv(traces, directory / 'data.csv')
+                assert (directory / 'chart.html').stat().st_size > 1000000
+                assert (directory / 'data.csv').is_file()
+        except Exception:
+            root.destroy()
+            sys.exit(1)
+        root.destroy()
+    else:
+        root.mainloop()

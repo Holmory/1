@@ -29,7 +29,7 @@ class Tests(unittest.TestCase):
         figure = make_chart(traces, Path(self.temp.name)/'chart.html')
         self.assertEqual(len(figure.data),2)
         self.assertFalse(figure.data[1].showlegend)
-        html=(Path(self.temp.name)/'chart.html').read_text()
+        html=(Path(self.temp.name)/'chart.html').read_text(encoding='utf-8')
         self.assertIn('plotly.js',html)
         self.assertNotIn('<script src=',html)
         path=Path(self.temp.name)/'out.csv';export_csv(traces,path)
